@@ -16,25 +16,36 @@
   </header>
   <main class="container-sm">
     <section class="row">
-      <div class="card col-12 mb-2" id="search-area">
+      <!-- Search Area -->
+      <div class="card col-12 mb-2">
         <div class="card-body">
           <h4 class="card-title">Enter a city</h4>
           <form class="form-inline">
-            <input class="form-control mr-4 col-auto" type="search" placeholder="City Name ... " aria-label="Search">
-            <button class="btn btn-outline-primary col-auto" type="submit">Search</button>
+            <input class="form-control mr-4 col-auto" id="search-input" type="search" placeholder="City Name ... " aria-label="Search">
+            <button class="btn btn-outline-primary col-auto" id="search-btn" type="submit">Search</button>
           </form>
         </div>
       </div>
-      <div class="card col-12 mt-2 p-2" id="search-history">
-        <ul class="list-group d-inline ">
-          <li class="btn btn-outline-secondary m-1">
-            Cupertino
+      <!-- Search history -->
+      <div class="card col-12 mt-2 p-2">
+        <ul class="list-group d-inline" id="previous-searches">
+          <li class="btn border p-1 m-1">
+            <div class="btn btn-outline-secondary border-0 p-1">
+              Cupertino
+            </div>
+            <div class="btn btn-outline-secondary border-0 p-1">&times;</div>
           </li>
-          <li class="btn btn-outline-secondary m-1">
-            San Mateo
+          <li class="btn border p-1 m-1">
+            <div class="btn btn-outline-secondary border-0 p-1">
+              San Mateo
+            </div>
+            <div class="btn btn-outline-secondary border-0 p-1">&times;</div>
           </li>
-          <li class="btn btn-outline-secondary m-1">
-            Walnut Creek
+          <li class="btn border p-1 m-1">
+            <div class="btn btn-outline-secondary border-0 p-1">
+              Walnut Creek
+            </div>
+            <div class="btn btn-outline-secondary border-0 p-1">&times;</div>
           </li>
           
           <!-- generate city names dynamically -->
