@@ -9,8 +9,8 @@ $(function() {
   // Variables
   var previousCities = []
   var currCity = "";
-  var currLat;
-  var currLong;
+  var currLat = "";
+  var currLong = "";
   var citiesList = [];
 
   // Function Definitions --------------------------------------------------
@@ -30,7 +30,8 @@ $(function() {
       var UVIndex;
 
       $.ajax({
-        url: "https://api.openweathermap.org/data/3.0/onecall?lat=" + currLat + "&lon=" + currLong + "&exclude=minutely,hourly,daily,alerts&appid=af9bef06aad138cfc1edc2c4a812ee06",
+        //url: "https://api.openweathermap.org/data/3.0/onecall?lat=" + currLat.toString() + "&lon=" + currLong.toString() + "&exclude=minutely,hourly,daily,alerts&appid=af9bef06aad138cfc1edc2c4a812ee06",
+        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${currLat}&lon=${currLong}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=af9bef06aad138cfc1edc2c4a812ee06`,
         method: "GET"
       })
       .fail(function( jqXHR) {
@@ -45,13 +46,13 @@ $(function() {
         /* display previous searches*/
 
 
+        console.log(response);
 
         temperature = response.current.temp;
         humidity = response.current.humidity;
         windSpeed = response.current.wind_speed;
         UVIndex = response.current.uvi;
         iconURL += response.current.weather[0].icon;
-        console.log(response);
 
 
         /* Clear section */
@@ -60,9 +61,13 @@ $(function() {
         /* Construct temperature*/
         /* Construct humidity */
         /* Construct windspeed */
-        /* Construct UV index */
+        /* create uv index element */
+          /* color correctly */
+          /* append */
 
-        /* Call to display forecast */
+        /* Call to display forecast */ 
+        displayForecast();       
+        
 
 
       });
@@ -78,8 +83,8 @@ $(function() {
       .fail(function( jqXHR) {
         console.log( "Request failed: " + jqXHR.responseJSON.message);
       })
-      .done(function() {
-
+      .done(function(response) {
+        console.log(response);
         /* Construct title */
 
         /* Iteratively create forecast cards */
@@ -113,6 +118,7 @@ $(function() {
       // display weather data
     function searchCity(e) {
       e.preventDefault();
+      if(!searchInputEl.val().trim()) return;
       var cityArr = searchInputEl.val().split(", ");
       var cityName = cityArr[0];
       var countryCode = cityArr[2] || "";
@@ -130,8 +136,9 @@ $(function() {
         console.log( "Request failed: " + jqXHR.responseJSON.message);
       })
       .done(function(response) {
-        currLat = response.data[0].latitude.toPrecision(2);
-        currLong = response.data[0].longitude.toPrecision(2);
+        console.log(response);
+        currLat = response.data[0].latitude;
+        currLong = response.data[0].longitude;
         currCity = response.data[0].city;
         console.log(response);
         displayWeatherData();
@@ -170,29 +177,7 @@ $(function() {
 
     // autocomplete for search input
     searchInputEl.autocomplete({
-      source: function( request, response ) {
-        $.ajax( {
-          "async": true,
-          "crossDomain": true,
-          "url": "https://wft-geo-db.p.rapidapi.com/v1/geo/cities?limit=10&namePrefix=" + searchInputEl.val() + "&sort=-population&types=CITY",
-          "method": "GET",
-          "headers": {
-            "X-RapidAPI-Key": "1fe342bc6amsh07f8aebea06c74bp1eff28jsn0000b1fbcb43",
-            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com"
-          },
-          
-        })
-        .fail(function( jqXHR) {
-          console.log( "Request failed: " + jqXHR.responseJSON.message);
-        }) 
-        .done(function( data ) {
-            citiesList = [];
-            for(var i of data.data){
-              citiesList.push(i.city + ", " + i.regionCode + ", " + i.countryCode);
-            }
-            response( citiesList );
-        });
-      },
+      source: citiesList,
       minLength: 3,
       delay: 1000
     });
