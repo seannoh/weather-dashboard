@@ -21,6 +21,13 @@
         <div class="card-body">
           <h4 class="card-title">Enter a city</h4>
           <form class="form-inline">
+            <style>
+              .ui-autocomplete-loading {
+                background: white url('assets/images/loading-45.gif') right center no-repeat; 
+                background-size: 20px; 
+                background-origin: content-box;
+              }
+            </style>
             <input class="form-control mr-4 col-auto" id="search-input" type="search" placeholder="City Name ... " aria-label="Search">
             <button class="btn btn-outline-primary col-auto" id="search-btn" type="submit">Search</button>
           </form>

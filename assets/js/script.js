@@ -7,7 +7,7 @@ $(function() {
   var weatherForecastEl = $("#weather-forecast")
 
   // Variables
-  var previousCities = localStorage.getItem("previous-cities") ? JSON.parse(localStorage.getItem("previous-cities")) : [];
+  var previousCities = []
   var currCity = "";
   var currLat;
   var currLong;
@@ -16,8 +16,9 @@ $(function() {
   // Function Definitions
 
     // load storage
-
-    // load list of cities
+    function loadStorage() {
+      previousCities = localStorage.getItem("previous-cities") ? JSON.parse(localStorage.getItem("previous-cities")) : [];
+    }
 
 
     // display weather data
@@ -51,7 +52,28 @@ $(function() {
     // event listener for previous searches - handle previous search clicks
 
     // autocomplete for search input
-
+    searchInputEl.autocomplete({
+      source: function( request, response ) {
+        $.ajax( {
+          "async": true,
+          "crossDomain": true,
+          "url": "https://wft-geo-db.p.rapidapi.com/v1/geo/cities?limit=10&namePrefix=" + searchInputEl.val() + "&sort=-population&types=CITY",
+          "method": "GET",
+          "headers": {
+            "X-RapidAPI-Key": "1fe342bc6amsh07f8aebea06c74bp1eff28jsn0000b1fbcb43",
+            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com"
+          },
+          success: function( data ) {
+            citiesList = [];
+            for(var i of data.data){
+              citiesList.push(i.city + ", " + i.regionCode + ", " + i.countryCode);
+            }
+            response( citiesList );
+          },
+        } );
+      },
+      minLength: 3,
+    } )
 
 
 });
