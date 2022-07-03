@@ -17,6 +17,11 @@ $(function() {
     // load storage
     function loadStorage() {
       previousCities = localStorage.getItem("previous-cities") ? JSON.parse(localStorage.getItem("previous-cities")) : [];
+      if(previousCities.length > 0){
+        currCity = previousCities.splice(-1);
+        displayWeatherData();
+      }
+      
     }
 
 
@@ -101,8 +106,21 @@ $(function() {
       //stub
 
       /* Clear section */
+      previousSearchesEl.empty();
 
       /* Iteratively create button elements */
+      for(var i = 0; i < previousCities.length; i++) {
+        var liEl = $("<li>");
+        liEl.addClass("btn border p-1 m-1");
+        var btnEl = $("<div>");
+        btnEl.addClass("btn btn-outline-secondary border-0 p-1");
+        btnEl.text(previousCities[i]);
+        var deletebtnEl = $("<div>");
+        deletebtnEl.addClass("btn btn-outline-secondary border-0 p-1");
+        deletebtnEl.html("&times;");
+        liEl.append(btnEl,deletebtnEl);
+        previousSearchesEl.append(liEl);
+      }
 
     }
 
