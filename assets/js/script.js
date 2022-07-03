@@ -7,11 +7,10 @@ $(function() {
   var weatherForecastEl = $("#weather-forecast")
 
   // Variables
-  var previousCities = []
+  var previousCities = [];
   var currCity = "";
   var currLat = "";
   var currLong = "";
-  var citiesList = [];
 
   // Function Definitions --------------------------------------------------
 
@@ -30,20 +29,22 @@ $(function() {
       var UVIndex;
 
       $.ajax({
-        //url: "https://api.openweathermap.org/data/3.0/onecall?lat=" + currLat.toString() + "&lon=" + currLong.toString() + "&exclude=minutely,hourly,daily,alerts&appid=af9bef06aad138cfc1edc2c4a812ee06",
-        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${currLat}&lon=${currLong}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=af9bef06aad138cfc1edc2c4a812ee06`,
+        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${currLat}&lon=${currLong}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=${APIKEY}`,
         method: "GET"
       })
       .fail(function( jqXHR) {
-        console.log( "Request failed: " + jqXHR.responseJSON.message);
+        alert( "Request failed: " + jqXHR.responseJSON.message);
       })
       .done(function(response) {
       
         /* add city to list */
+        addToPreviousSearches(currCity);
 
         /* update local storage */
+        localStorage.setItem("previous-cities",JSON.stringify(previousCities));
 
         /* display previous searches*/
+        displayPreviousSearches();
 
 
         console.log(response);
@@ -77,11 +78,11 @@ $(function() {
       /* Clear section */
 
       $.ajax({
-        url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + currLat + "&lon=" + currLong + "&units=imperial&appid=af9bef06aad138cfc1edc2c4a812ee06",
+        url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + currLat + "&lon=" + currLong + "&units=imperial&appid=" + APIKEY,
         method: "GET"
       })
       .fail(function( jqXHR) {
-        console.log( "Request failed: " + jqXHR.responseJSON.message);
+        alert( "Request failed: " + jqXHR.responseJSON.message);
       })
       .done(function(response) {
         console.log(response);
@@ -119,28 +120,28 @@ $(function() {
     function searchCity(e) {
       e.preventDefault();
       if(!searchInputEl.val().trim()) return;
-      var cityArr = searchInputEl.val().split(", ");
-      var cityName = cityArr[0];
-      var countryCode = cityArr[2] || "";
-      var url = "https://wft-geo-db.p.rapidapi.com/v1/geo/cities?limit=1&namePrefix=" + cityName + "&sort=-population&types=CITY";
-      url += (countryCode) ? "&countryIds=" + countryCode : "";
+      currCity = searchInputEl.val().trim().replace(/\s*,\s*/,',');
+      console.log(currCity);
       $.ajax({
-          "url": url,
+          "url": `http://api.openweathermap.org/geo/1.0/direct?q=${currCity}&limit=1&appid=${APIKEY}`,
           "method": "GET",
-          "headers": {
-            "X-RapidAPI-Key": "1fe342bc6amsh07f8aebea06c74bp1eff28jsn0000b1fbcb43",
-            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com"
-          }
       })
       .fail(function( jqXHR) {
-        console.log( "Request failed: " + jqXHR.responseJSON.message);
+        alert( "Request failed: " + jqXHR.responseJSON.message);
       })
       .done(function(response) {
         console.log(response);
-        currLat = response.data[0].latitude;
-        currLong = response.data[0].longitude;
-        currCity = response.data[0].city;
-        console.log(response);
+
+        if(response.length == 0){
+          var errorMsgEl = $("<h2>");
+          errorMsgEl.text("Couldn't find that city! :(");
+          errorMsgEl.addClass("jumbotron-fluid");
+          currentWeatherEl.append(errorMsgEl);
+          return;
+        }
+        currLat = response[0].lat;
+        currLong = response[0].lon;
+        currCity = response[0].name;
         displayWeatherData();
       });
     }
@@ -179,7 +180,6 @@ $(function() {
     searchInputEl.autocomplete({
       source: citiesList,
       minLength: 3,
-      delay: 1000
     });
 
 
