@@ -8,10 +8,11 @@ $(function() {
 
   // Variables
   var previousCities = [];
-  var currCity = "";
-  var currDisplayName = "";
-  var currLat = "";
-  var currLong = "";
+  var currCity = {
+    cityName: "",
+    currLat: "",
+    currLong: ""
+  }
 
   // Function Definitions --------------------------------------------------
 
@@ -31,7 +32,7 @@ $(function() {
       var UVIndex;
 
       $.ajax({
-        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${currLat}&lon=${currLong}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=${APIKEY}`,
+        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${currCity.currLat}&lon=${currCity.currLong}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=${APIKEY}`,
         method: "GET"
       })
       .fail(function( jqXHR) {
@@ -62,7 +63,7 @@ $(function() {
         var headingEl = $("<h1>");
         headingEl.addClass("row m-0 p-3 align-items-center");
         var date = moment().format("MMMM Do, YYYY");
-        headingEl.text(`${currCity} (${date})`);
+        headingEl.text(`${currCity.cityName} (${date})`);
         // add weather icon
         var imgEl = $("<img>");
         imgEl.attr("src",iconURL);
@@ -74,7 +75,7 @@ $(function() {
 
         /* Construct coords */
         var coordsEl = $("<p>");
-        coordsEl.text(`(Lat, Long): (${currLat}, ${currLong})`);
+        coordsEl.text(`(Lat, Long): (${currCity.currLat}, ${currCity.currLong})`);
 
         /* Construct temperature*/
         var tempEl = $("<p>");
@@ -125,7 +126,7 @@ $(function() {
       /* Clear section */
 
       $.ajax({
-        url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + currLat + "&lon=" + currLong + "&units=imperial&appid=" + APIKEY,
+        url: "https://api.openweathermap.org/data/2.5/forecast?lat=" + currCity.currLat + "&lon=" + currCity.currLong + "&units=imperial&appid=" + APIKEY,
         method: "GET"
       })
       .fail(function( jqXHR) {
@@ -145,8 +146,6 @@ $(function() {
 
     // display previous searches
     function displayPreviousSearches() {
-      //stub
-
       /* Clear section */
       previousSearchesEl.empty();
 
@@ -155,10 +154,10 @@ $(function() {
         var liEl = $("<li>");
         liEl.addClass("btn border p-1 m-1");
         var btnEl = $("<div>");
-        btnEl.addClass("btn btn-outline-secondary border-0 p-1");
-        btnEl.text(previousCities[i]);
+        btnEl.addClass("btn btn-outline-secondary border-0 p-1 prev-search-btn");
+        btnEl.text(previousCities[i].cityName);
         var deletebtnEl = $("<div>");
-        deletebtnEl.addClass("btn btn-outline-secondary border-0 p-1");
+        deletebtnEl.addClass("btn btn-outline-secondary border-0 p-1 prev-search-del-btn");
         deletebtnEl.html("&times;");
         liEl.append(btnEl,deletebtnEl);
         previousSearchesEl.append(liEl);
@@ -169,7 +168,8 @@ $(function() {
     // add search to list of previous searches
     function addToPreviousSearches(city) {
       /* Check if it's already in the list */
-      if(!previousCities.includes(city)){
+      console.log(city);
+      if (!(previousCities.some(e => {return e.currLat == city.currLat && e.currLong == city.currLong}))) {
         previousCities.push(city);
       }
     }
@@ -180,10 +180,10 @@ $(function() {
     function searchCity(e) {
       e.preventDefault();
       if(!searchInputEl.val().trim()) return;
-      currCity = searchInputEl.val().trim().replace(/\s*,\s*/,',');
-      console.log(currCity);
+      currCity.cityName = searchInputEl.val().trim().replace(/\s*,\s*/,',');
+      console.log(currCity.cityName);
       $.ajax({
-          "url": `http://api.openweathermap.org/geo/1.0/direct?q=${currCity}&limit=1&appid=${APIKEY}`,
+          "url": `http://api.openweathermap.org/geo/1.0/direct?q=${currCity.cityName}&limit=1&appid=${APIKEY}`,
           "method": "GET",
       })
       .fail(function( jqXHR) {
@@ -193,14 +193,15 @@ $(function() {
         console.log(response);
 
         if(response.length == 0){
+          currentWeatherEl.empty();
           var errorMsgEl = $("<h2>");
-          errorMsgEl.text("Couldn't find that city! :(");
+          errorMsgEl.text("Couldn't find the city \"" + searchInputEl.val() + "\" :(");
           errorMsgEl.addClass("jumbotron-fluid");
           currentWeatherEl.append(errorMsgEl);
           return;
         }
-        currLat = response[0].lat;
-        currLong = response[0].lon;
+        currCity.currLat = response[0].lat;
+        currCity.currLong = response[0].lon;
         displayWeatherData();
       });
     }
@@ -208,18 +209,23 @@ $(function() {
     // handle previous search clicks
     function handlePreviousSearchBtns() {
       //stub
-
+      var element = $(this);
       // display weather for previous search
+      var elementIndex = element.parent().index();
+      var cityInfo = previousCities[elementIndex];
+      currCity.cityName = cityInfo.cityName;
+      currCity.currLat = cityInfo.currLat;
+      currCity.currLong = cityInfo.currLong;
+      displayWeatherData();
 
-        /* set currCity */
-        /* call displayWeatherData */
+    }
 
+    function removePreviousSearch(e){
       // remove search from list of previous searches
 
         /* remove element from DOM */
         /* search for and remove corresponding element in cities list */
         /* update previousCities */
-
     }
       
 
@@ -233,7 +239,8 @@ $(function() {
     searchBtnEl.on("click",searchCity);
 
     // event listener for previous searches - handle previous search clicks
-    previousSearchesEl.on("click",handlePreviousSearchBtns);
+    previousSearchesEl.on("click",".prev-search-btn",handlePreviousSearchBtns);
+    previousSearchesEl.on("click",".prev-search-del-btn",handlePreviousSearchBtns);
 
     // autocomplete for search input
     searchInputEl.autocomplete({
