@@ -9,6 +9,7 @@ $(function() {
   // Variables
   var previousCities = [];
   var currCity = "";
+  var currDisplayName = "";
   var currLat = "";
   var currLong = "";
 
@@ -17,11 +18,7 @@ $(function() {
     // load storage
     function loadStorage() {
       previousCities = localStorage.getItem("previous-cities") ? JSON.parse(localStorage.getItem("previous-cities")) : [];
-      if(previousCities.length > 0){
-        currCity = previousCities.splice(-1);
-        displayWeatherData();
-      }
-      
+      displayPreviousSearches();
     }
 
 
@@ -51,31 +48,76 @@ $(function() {
         /* display previous searches*/
         displayPreviousSearches();
 
-
-        console.log(response);
-
+        /* Get data */
         temperature = response.current.temp;
         humidity = response.current.humidity;
         windSpeed = response.current.wind_speed;
         UVIndex = response.current.uvi;
-        iconURL += response.current.weather[0].icon;
-
+        iconURL += response.current.weather[0].icon + "@2x.png";
 
         /* Clear section */
+        currentWeatherEl.empty();
+
         /* Construct heading */
-          // add weather icon
+        var headingEl = $("<h1>");
+        headingEl.addClass("row m-0 p-3 align-items-center");
+        var date = moment().format("MMMM Do, YYYY");
+        headingEl.text(`${currCity} (${date})`);
+        // add weather icon
+        var imgEl = $("<img>");
+        imgEl.attr("src",iconURL);
+        headingEl.append(imgEl);
+        currentWeatherEl.append(headingEl);
+        var hrEl = $("<hr>");
+        hrEl.addClass("w-100");
+        currentWeatherEl.append(hrEl);
+
+        /* Construct coords */
+        var coordsEl = $("<p>");
+        coordsEl.text(`(Lat, Long): (${currLat}, ${currLong})`);
+
         /* Construct temperature*/
+        var tempEl = $("<p>");
+        tempEl.text("Temperature: " + temperature);
+
         /* Construct humidity */
+        var humidEl = $("<p>");
+        humidEl.text("Humidity: " + humidity);
+        
         /* Construct windspeed */
+        var windSpeedEl = $("<p>");
+        windSpeedEl.text("Wind Speed: " + windSpeed);
+
         /* create uv index element */
-          /* color correctly */
+        var UVEl = $("<p>");
+        UVEl.text("UV Index: ");
+        var UVIEl = $("<span>");
+        UVIEl.text(UVIndex);
+        UVIEl.addClass("p-2 rounded-lg");
+        /* color correctly */
+        var bkgdColor = "";
+        if(UVIndex < 3){
+          bkgdColor = "green";
+        }else if(UVIndex < 6){
+          bkgdColor = "yellow";
+        }else if(UVIndex < 8){
+          bkgdColor = "orange";
+        }else if(UVIndex < 11){
+          bkgdColor = "red";
+        }else if(UVIndex >= 11){
+          bkgdColor = "purple";
+        }else{
+          bkgdColor = "white";
+        }
+        UVIEl.attr("style",`background-color: ${bkgdColor}`);
           /* append */
+        UVEl.append(UVIEl);
+
+        currentWeatherEl.append(coordsEl,tempEl,humidEl,windSpeedEl,UVEl);
 
         /* Call to display forecast */ 
         displayForecast();       
-        
-
-
+      
       });
     }
 
@@ -126,10 +168,10 @@ $(function() {
 
     // add search to list of previous searches
     function addToPreviousSearches(city) {
-      //stub
-
       /* Check if it's already in the list */
-        /* Add to list with title casing */
+      if(!previousCities.includes(city)){
+        previousCities.push(city);
+      }
     }
 
     
@@ -159,7 +201,6 @@ $(function() {
         }
         currLat = response[0].lat;
         currLong = response[0].lon;
-        currCity = response[0].name;
         displayWeatherData();
       });
     }
