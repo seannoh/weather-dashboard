@@ -176,7 +176,7 @@ $(function() {
 
     }
 
-    // add search to list of previous searches
+    // add city to list of previous searches
     function addToPreviousSearches(stringyCity) {
       /* Check if it's already in the list */
       var city = JSON.parse(stringyCity);
