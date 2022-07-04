@@ -41,7 +41,7 @@ $(function() {
       .done(function(response) {
       
         /* add city to list */
-        addToPreviousSearches(currCity);
+        addToPreviousSearches(JSON.stringify(currCity));
 
         /* update local storage */
         localStorage.setItem("previous-cities",JSON.stringify(previousCities));
@@ -177,9 +177,11 @@ $(function() {
     }
 
     // add search to list of previous searches
-    function addToPreviousSearches(city) {
+    function addToPreviousSearches(stringyCity) {
       /* Check if it's already in the list */
-      if (!(previousCities.some(e => {return e.currLat == city.currLat && e.currLong == city.currLong}))) {
+      var city = JSON.parse(stringyCity);
+
+      if (!(previousCities.some(function(e) {return (e.currLat == city.currLat) && (e.currLong == city.currLong)}))) {
         previousCities.push(city);
       }
     }
@@ -192,7 +194,7 @@ $(function() {
       if(!searchInputEl.val().trim()) return;
       // trim whitespace
       currCity.cityName = searchInputEl.val().trim().replace(/\s*,\s*/,',');
-      console.log(currCity.cityName);
+
       $.ajax({
           "url": `http://api.openweathermap.org/geo/1.0/direct?q=${currCity.cityName}&limit=1&appid=${APIKEY}`,
           "method": "GET",
@@ -216,7 +218,7 @@ $(function() {
         displayWeatherData();
       });
     }
-
+  
     // handle previous search clicks
     function handlePreviousSearchBtns() {
       var element = $(this);
@@ -230,7 +232,8 @@ $(function() {
 
     }
 
-    function removePreviousSearch(e){
+    // remove city from search history
+    function removePreviousSearch(){
       // remove search from list of previous searches
       var element = $(this);
 
