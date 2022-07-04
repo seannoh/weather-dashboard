@@ -78,15 +78,15 @@ $(function() {
 
         /* Construct temperature*/
         var tempEl = $("<p>");
-        tempEl.text("Temperature: " + temperature);
+        tempEl.text("Temperature: " + temperature + " °F");
 
         /* Construct humidity */
         var humidEl = $("<p>");
-        humidEl.text("Humidity: " + humidity);
+        humidEl.text("Humidity: " + humidity + " %");
         
         /* Construct windspeed */
         var windSpeedEl = $("<p>");
-        windSpeedEl.text("Wind Speed: " + windSpeed);
+        windSpeedEl.text("Wind Speed: " + windSpeed + " mph");
 
         /* create uv index element */
         var UVEl = $("<p>");
@@ -138,10 +138,10 @@ $(function() {
           cardImgEl.attr("src",iconURL + response.daily[i].weather[0].icon + ".png");
           // Construct temp
           var cardTempEl = $("<p>").addClass("card-text");
-          cardTempEl.text("Temp: " + response.daily[i].temp.day);
+          cardTempEl.text("Temp: " + response.daily[i].temp.day + " °F");
           // Construct humidity
           var cardHumidEl = $("<p>").addClass("card-text");
-          cardHumidEl.text("Humidity: " + response.daily[i].humidity);
+          cardHumidEl.text("Humidity: " + response.daily[i].humidity + " %");
 
           // append
           cardBodyEl.append(cardHeadEl,cardImgEl,cardTempEl,cardHumidEl);
