@@ -222,10 +222,16 @@ $(function() {
 
     function removePreviousSearch(e){
       // remove search from list of previous searches
+      console.log("remove");
+      var element = $(this);
 
-        /* remove element from DOM */
-        /* search for and remove corresponding element in cities list */
-        /* update previousCities */
+
+      /* search for and remove corresponding element in cities list */
+      var elementIndex = element.parent().index();
+      previousCities.splice(elementIndex,1);
+      localStorage.setItem("previous-cities",JSON.stringify(previousCities));
+      /* remove element from DOM */
+      $(this).parent().remove();
     }
       
 
@@ -240,7 +246,7 @@ $(function() {
 
     // event listener for previous searches - handle previous search clicks
     previousSearchesEl.on("click",".prev-search-btn",handlePreviousSearchBtns);
-    previousSearchesEl.on("click",".prev-search-del-btn",handlePreviousSearchBtns);
+    previousSearchesEl.on("click",".prev-search-del-btn",removePreviousSearch);
 
     // autocomplete for search input
     searchInputEl.autocomplete({
