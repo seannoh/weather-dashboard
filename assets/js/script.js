@@ -196,7 +196,7 @@ $(function() {
       currCity.cityName = searchInputEl.val().trim().replace(/\s*,\s*/,',');
 
       $.ajax({
-          "url": `http://api.openweathermap.org/geo/1.0/direct?q=${currCity.cityName}&limit=1&appid=${APIKEY}`,
+          "url": `https://api.openweathermap.org/geo/1.0/direct?q=${currCity.cityName}&limit=1&appid=${APIKEY}`,
           "method": "GET",
       })
       .fail(function( jqXHR) {
